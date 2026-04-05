@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: data-plane
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ingestion
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring

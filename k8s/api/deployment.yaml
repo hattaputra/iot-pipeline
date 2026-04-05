@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iot-api
+  namespace: ingestion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: iot-api
+  template:
+    metadata:
+      labels:
+        app: iot-api
+    spec:
+      containers:
+        - name: iot-api
+          image: iot-api:latest
+          imagePullPolicy: Never  # pakai local image, jangan pull dari registry
+          ports:
+            - containerPort: 8000
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "kafka.data-plane.svc.cluster.local:9092"
+            - name: API_KEYS
+              value: "dev-key-001"
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+            limits:
+              memory: 256Mi
+              cpu: 250m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iot-api
+  namespace: ingestion
+spec:
+  selector:
+    app: iot-api
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30800  # port yang bisa diakses dari luar cluster
+  type: NodePort
