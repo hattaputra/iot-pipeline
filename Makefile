@@ -18,6 +18,7 @@ deploy:
 	helm upgrade --install grafana grafana/grafana \
 		--namespace monitoring \
 		--values k8s/grafana/helm-values.yaml
+	helm repo update
 
 rebuild: build
 	kubectl rollout restart deployment iot-api -n ingestion
