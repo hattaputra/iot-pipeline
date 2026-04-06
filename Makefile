@@ -14,6 +14,7 @@ deploy:
 	kubectl apply -f k8s/kafka-exporter/deployment.yaml
 	kubectl apply -f k8s/prometheus/configmap.yaml
 	kubectl apply -f k8s/prometheus/deployment.yaml
+	helm install grafana grafana/grafana --namespace monitoring --values k8s\grafana\helm-values.yaml
 	helm upgrade --install grafana grafana/grafana \
 		--namespace monitoring \
 		--values k8s/grafana/helm-values.yaml
