@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-detector
+  namespace: ingestion
+spec:
+  replicas: 1  # jangan lebih dari 1 -- state machine per device harus single consumer
+  selector:
+    matchLabels:
+      app: event-detector
+  template:
+    metadata:
+      labels:
+        app: event-detector
+    spec:
+      containers:
+        - name: event-detector
+          image: event-detector:latest
+          imagePullPolicy: Never  # pakai local image dari import-images
+          env:
+            - name: KAFKA_BOOTSTRAP
+              value: "kafka.data-plane.svc.cluster.local:9092"
+            - name: KAFKA_TOPIC
+              value: "telemetry"
+            - name: KAFKA_GROUP_ID
+              value: "event-detector"
+            - name: REDIS_HOST
+              value: "redis.data-plane.svc.cluster.local"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: CH_HOST
+              value: "clickhouse.data-plane.svc.cluster.local"
+            - name: CH_PORT
+              value: "9000"
+            - name: CH_USER
+              value: "admin"
+            - name: CH_PASSWORD
+              value: "iot123"
+            - name: CH_DATABASE
+              value: "iot"
+            - name: TOO_HOT_MIN
+              value: "27.0"
+            - name: TOO_HOT_MAX
+              value: "30.0"
+            - name: GAP_TIMEOUT_SEC
+              value: "60"
+            - name: SWEEP_INTERVAL_SEC
+              value: "30"
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 128Mi
+              cpu: 200m
