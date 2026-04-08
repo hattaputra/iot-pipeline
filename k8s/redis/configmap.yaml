@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: data-plane
+data:
+  redis.conf: |
+    # Persistence: RDB snapshot
+    # Simpan snapshot kalau ada >= 1 key berubah dalam 60 detik
+    # Ini cukup untuk use case event state -- tidak perlu AOF yang lebih berat
+    save 60 1
+
+    # Lokasi file snapshot
+    dir /data
+    dbfilename dump.rdb
+
+    # Proteksi: hanya terima koneksi dari dalam cluster
+    bind 0.0.0.0
+
+    # Matikan protected-mode karena kita pakai clusterIP: None (headless)
+    protected-mode no
+
+    # Max memory: konsisten dengan limits di StatefulSet
+    maxmemory 100mb
+
+    # Kalau memory penuh, hapus key yang paling jarang diakses
+    # Untuk event state machine, ini behavior yang aman
+    maxmemory-policy allkeys-lru
+
+    # Log level: hanya warning ke atas supaya tidak flood log
+    loglevel warning
